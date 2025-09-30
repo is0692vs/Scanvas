@@ -1,0 +1,22 @@
+{
+  "name": "scanvas-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for Scanvas - Network Topology Visualization",
+  "main": "index.html",
+  "scripts": {
+    "serve": "python3 -m http.server 8000",
+    "install-cytoscape": "curl -L -o cytoscape.min.js https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js"
+  },
+  "dependencies": {
+    "cytoscape": "^3.28.1"
+  },
+  "keywords": [
+    "cytoscape",
+    "graph",
+    "visualization",
+    "network",
+    "topology"
+  ],
+  "author": "",
+  "license": "MIT"
+}
