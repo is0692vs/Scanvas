@@ -29,3 +29,5 @@ logs/
 # Build output
 dist/
 build/
+.gemini/
+gha-creds-*.json
