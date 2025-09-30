@@ -87,7 +87,7 @@ def test_scan_local_network(mock_get_range, mock_srp):
     scan_local_networkがネットワークデバイスを正しく検出できるかテストする
     """
     # scapyのsrp関数が返す偽の応答リストを作成
-    mock_sent = MagicMock()
+def test_scan_local_network(mock_get_range: MagicMock, mock_srp: MagicMock):
     mock_response = MagicMock()
     mock_response.psrc = "192.168.1.1"  # IPアドレス
     mock_response.hwsrc = "00:11:22:33:44:55"  # MACアドレス
