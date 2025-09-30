@@ -30,12 +30,40 @@ except ImportError:
         ]
     }
 
+# Issue #4で作成したネットワークスキャナーをインポート
+NETWORK_SCANNER_AVAILABLE = False
+MOCK_NETWORK_DEVICES = []
 
-def format_for_cytoscape(system_info_json, usb_tree):
+try:
+    from network_scanner import scan_local_network
+    NETWORK_SCANNER_AVAILABLE = True
+except ImportError:
+    # フォールバック用のモックデータ
+    MOCK_NETWORK_DEVICES = [
+        {
+            "node_id": "net_192_168_1_1",
+            "node_type": "Network Device",
+            "label": "192.168.1.1",
+            "details": {
+                "ip_address": "192.168.1.1",
+                "mac_address": "aa:bb:cc:dd:ee:ff"
+            }
+        }
+    ]
+
+
+def format_for_cytoscape(system_info_json, usb_tree, network_devices=None):
     """
     各種データをCytoscape.jsが解釈できるJSONフォーマットに整形する。
+
+    Args:
+        system_info_json: PC本体の情報(JSON文字列)
+        usb_tree: USBデバイスの階層構造(辞書)
+        network_devices: ネットワークデバイスのリスト(辞書のリスト)
     """
     elements = []
+    if network_devices is None:
+        network_devices = []
 
     # 1. PC本体の情報をJSONから読み込み、中央のノードとして追加
     system_info = json.loads(system_info_json)
@@ -76,7 +104,26 @@ def format_for_cytoscape(system_info_json, usb_tree):
     for device in usb_tree["children"]:
         process_usb_node(device, pc_node["data"]["id"])
 
-    # TODO: Issue #4完了後、ここにネットワークデバイスの処理を追加
+    # 4. ネットワークデバイスをノードとエッジとして追加
+    for network_device in network_devices:
+        # ネットワークデバイスのノードを追加
+        elements.append({
+            "group": "nodes",
+            "data": {
+                "id": network_device["node_id"],
+                "label": network_device["label"],
+                "type": network_device["node_type"],
+                "details": network_device.get("details", {})
+            }
+        })
+        # PC本体との接続エッジを追加
+        elements.append({
+            "group": "edges",
+            "data": {
+                "source": pc_node["data"]["id"],
+                "target": network_device["node_id"]
+            }
+        })
 
     return {"elements": elements}
 
@@ -92,8 +139,23 @@ if __name__ == "__main__":
     else:
         usb_tree = MOCK_USB_TREE
 
-    # 実際のPC情報とUSB情報を使ってフォーマット関数を呼び出す
-    cytoscape_json = format_for_cytoscape(actual_system_info_json, usb_tree)
+    # ネットワークデバイス情報を取得
+    # （利用可能な場合は実際のスキャン、そうでなければモック）
+    if NETWORK_SCANNER_AVAILABLE:
+        try:
+            network_devices = scan_local_network()
+        except (PermissionError, Exception):
+            # 権限エラーや実行エラーの場合はモックデータを使用
+            network_devices = MOCK_NETWORK_DEVICES
+    else:
+        network_devices = MOCK_NETWORK_DEVICES
+
+    # 実際のPC情報、USB情報、ネットワーク情報を統合
+    cytoscape_json = format_for_cytoscape(
+        actual_system_info_json,
+        usb_tree,
+        network_devices
+    )
 
     # 整形されたJSONを画面に出力
     print(json.dumps(cytoscape_json, indent=2))

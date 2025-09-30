@@ -1,3 +1,5 @@
 # requirements.txt
 psutil
 pyusb
+pyusb
+scapy
