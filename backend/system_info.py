@@ -34,10 +34,12 @@ def get_system_info():
         # メモリ情報
         svmem = psutil.virtual_memory()
         memory_info = {
-            "total": f"{svmem.total / (1024**3):.2f} GB",
-            "available": f"{svmem.available / (1024**3):.2f} GB",
-            "used": f"{svmem.used / (1024**3):.2f} GB",
-            "percentage": f"{svmem.percent}%"
+        memory_info = {
+            "total_gb": round(svmem.total / (1024**3), 2),
+            "available_gb": round(svmem.available / (1024**3), 2),
+            "used_gb": round(svmem.used / (1024**3), 2),
+            "percentage": svmem.percent
+        }
         }
 
         # 全ての情報を一つの辞書にまとめる
