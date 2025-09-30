@@ -13,12 +13,13 @@ def get_device_details(dev):
     }
     try:
         details["manufacturer"] = usb.util.get_string(dev, dev.iManufacturer)
-    except Exception:
+    except usb.core.USBError:
         details["manufacturer"] = "N/A"
 
     try:
         details["product"] = usb.util.get_string(dev, dev.iProduct)
-    except Exception:
+    except usb.core.USBError:
+        details["product"] = "N/A"
         details["product"] = "N/A"
 
     return details
