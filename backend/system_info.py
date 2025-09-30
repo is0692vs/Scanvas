@@ -22,7 +22,7 @@ def get_system_info():
         cpu_freq_obj = psutil.cpu_freq()  # まず結果を取得
 
         # cpu_freq_obj が None でないか確認してからアクセスする
-        max_frequency = f"{cpu_freq_obj.max:.2f}Mhz" if cpu_freq_obj and cpu_freq_obj.max else "N/A"
+        max_frequency = f"{cpu_freq_obj.max:.2f}MHz" if cpu_freq_obj and cpu_freq_obj.max else "N/A"
 
         cpu_info = {
             "physical_cores": psutil.cpu_count(logical=False),
