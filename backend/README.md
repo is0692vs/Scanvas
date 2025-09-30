@@ -47,8 +47,10 @@ python backend/system_info.py
 
 - `system_info.py`から取得した PC 情報を中心ノードとして追加
 - USB デバイスツリーをノードとエッジに変換（再帰的処理）
+- ネットワークデバイスをノードとエッジに変換
 - `usb_scanner.py`が利用可能な場合は実際の USB デバイス情報を使用
-- 将来的にネットワークデバイスも統合予定
+- `network_scanner.py`が利用可能な場合は実際のネットワークデバイス情報を使用
+- 各スキャナーが利用できない場合はモックデータにフォールバック
 
 **実行方法:**
 
@@ -126,6 +128,56 @@ python backend/usb_scanner.py
 - devcontainer 環境では USB デバイスへのアクセスが制限される場合があります
 - アクセス権限エラーが発生する場合は、適切な権限設定が必要です
 
+### `network_scanner.py` (Issue #4)
+
+ローカルネットワーク上のアクティブなデバイスを ARP リクエストを使用してスキャンします。
+
+**機能:**
+
+- 実行中のマシンの IP アドレスから自動的にネットワーク範囲を特定
+- ARP リクエストによるネットワークデバイスの検出
+- 各デバイスの IP アドレスと MAC アドレスを取得
+
+**実行方法:**
+
+```bash
+sudo python backend/network_scanner.py
+```
+
+**⚠️ 注意:** ネットワークスキャンは低レベルのパケット操作を行うため、管理者（root）権限が必要です。
+
+**出力例:**
+
+```json
+[
+  {
+    "node_id": "net_192_168_1_1",
+    "node_type": "Network Device",
+    "label": "192.168.1.1",
+    "details": {
+      "ip_address": "192.168.1.1",
+      "mac_address": "a0:b1:c2:d3:e4:f5"
+    }
+  },
+  {
+    "node_id": "net_192_168_1_5",
+    "node_type": "Network Device",
+    "label": "192.168.1.5",
+    "details": {
+      "ip_address": "192.168.1.5",
+      "mac_address": "f1:e2:d3:c4:b5:a6"
+    }
+  }
+]
+```
+
+**注意事項:**
+
+- scapy ライブラリが必要です
+- root 権限で実行する必要があります（`sudo`を使用）
+- devcontainer 環境では制限される場合があります
+- ファイアウォールやネットワーク設定によってスキャン結果が異なる場合があります
+
 ## 依存関係
 
 ### requirements.txt
@@ -133,6 +185,7 @@ python backend/usb_scanner.py
 ```
 psutil
 pyusb
+scapy
 ```
 
 **インストール方法:**
@@ -161,7 +214,21 @@ python backend/usb_scanner.py
 
 **注意:** devcontainer 環境では USB デバイスへのアクセスが制限される場合があります。エラーが発生した場合は、エラーメッセージが JSON 形式で返されます。
 
-### 3. データフォーマットのテスト
+### 3. ネットワークデバイススキャンのテスト
+
+```bash
+sudo python backend/network_scanner.py
+```
+
+ローカルネットワーク上のアクティブなデバイスが JSON 形式で出力されることを確認してください。
+
+**注意:**
+
+- root 権限が必要です（`sudo`を使用）
+- devcontainer 環境では制限される場合があります
+- 権限エラーが発生した場合は、適切なエラーメッセージが JSON 形式で返されます
+
+### 4. データフォーマットのテスト
 
 ```bash
 python backend/data_formatter.py
@@ -171,15 +238,11 @@ Cytoscape.js 形式の JSON が出力され、以下が含まれることを確�
 
 - `local_pc`ノード（実際のホスト名とシステム詳細）
 - USB デバイスノード（実際のデバイス情報またはモックデータ）
+- ネットワークデバイスノード（実際のデバイス情報またはモックデータ）
 - ノード間のエッジ（接続関係）
 
 ## 今後の実装予定
 
-- **Issue #4**: ローカルネットワークデバイススキャン機能（`network_scanner.py`）
-- **Issue #6**: 各機能の単体テスト
-
-- **Issue #3**: USB 接続デバイスの階層構造スキャン機能（`usb_scanner.py`）
-- **Issue #4**: ローカルネットワークデバイススキャン機能（`network_scanner.py`）
 - **Issue #6**: 各機能の単体テスト
 
 ## Issue レポートの配置
