@@ -37,8 +37,12 @@ def build_device_tree():
         label = f"{details['manufacturer']} {details['product']}".strip()
         # バス番号とアドレスからユニークなIDを生成
         node_id = f"usb_{dev.bus}_{dev.address}"
-        device_map[dev.address] = {
-            "node_id": node_id,  # IDをデータに含める
+
+        # キーをタプル(bus, address)に変更
+        unique_key = (dev.bus, dev.address)
+
+        device_map[unique_key] = {
+            "node_id": node_id,
             "node_type": "USB Device",
             "label": label if label != "N/A N/A" else "Unknown USB Device",
             "details": details,
@@ -54,13 +58,20 @@ def build_device_tree():
 
     # 親子関係を構築
     for dev in devices:
+        current_key = (dev.bus, dev.address)
         # parentがNoneでない場合、それは何らかのハブに接続されている
-        if dev.parent is not None and dev.parent.address in device_map:
-            parent_info = device_map[dev.parent.address]
-            parent_info["children"].append(device_map[dev.address])
+        if dev.parent is not None:
+            # 親のキーもタプルで検索
+            parent_key = (dev.parent.bus, dev.parent.address)
+            if parent_key in device_map:
+                parent_info = device_map[parent_key]
+                parent_info["children"].append(device_map[current_key])
+            else:
+                # 親が見つからない場合もルートに追加(念のため)
+                root["children"].append(device_map[current_key])
         # parentがNoneの場合、それはルートハブに直接接続されている
         else:
-            root["children"].append(device_map[dev.address])
+            root["children"].append(device_map[current_key])
 
     return root
 
