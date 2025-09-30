@@ -88,5 +88,10 @@ if __name__ == "__main__":
         }
         print(json.dumps(error_msg, indent=4))
     except Exception as e:
-        error_msg = {"error": str(e)}
+    except Exception as e:
+        error_msg = {
+            "error": "An unexpected error occurred.",
+            "error_detail": str(e),
+            "error_type": type(e).__name__
+        }
         print(json.dumps(error_msg, indent=4))
