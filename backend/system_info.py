@@ -2,6 +2,7 @@ import psutil
 import platform
 import json
 
+
 def get_system_info():
     """
     PC本体のシステム情報（OS, CPU, メモリ）を取得し、
@@ -18,10 +19,15 @@ def get_system_info():
         }
 
         # CPU情報
+        cpu_freq_obj = psutil.cpu_freq()  # まず結果を取得
+
+        # cpu_freq_obj が None でないか確認してからアクセスする
+        max_frequency = f"{cpu_freq_obj.max:.2f}Mhz" if cpu_freq_obj and cpu_freq_obj.max else "N/A"
+
         cpu_info = {
             "physical_cores": psutil.cpu_count(logical=False),
             "total_cores": psutil.cpu_count(logical=True),
-            "max_frequency": f"{psutil.cpu_freq().max:.2f}Mhz",
+            "max_frequency": max_frequency,
             "cpu_usage_percent": psutil.cpu_percent(interval=1)
         }
 
@@ -36,21 +42,23 @@ def get_system_info():
 
         # 全ての情報を一つの辞書にまとめる
         all_info = {
-            "node_id": "local_pc", # グラフの中心ノードとしての一意のID
+            "node_id": "local_pc",  # グラフの中心ノードとしての一意のID
             "node_type": "Computer",
-            "label": uname.node, # PCのホスト名
+            "label": uname.node,  # PCのホスト名
             "details": {
                 "os": os_info,
                 "cpu": cpu_info,
                 "memory": memory_info
             }
         }
-        
+
         # 辞書をJSON形式の文字列に変換して返す
         return json.dumps(all_info, indent=4)
 
     except Exception as e:
+        # 予期せぬエラーが発生した場合もJSONで返す
         return json.dumps({"error": str(e)})
+
 
 # このファイルが直接実行された場合にのみ以下のコードを実行
 if __name__ == "__main__":
