@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scanvas - スタイルデモ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+        }
+        
+        .node-demo-section {
+            display: flex;
+            gap: 30px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .node-card {
+            border: 2px solid #333;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            min-width: 200px;
+        }
+        
+        .node-visual {
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .computer-node {
+            width: 80px;
+            height: 60px;
+            background-color: #4A90E2;
+            border: 2px solid #2E5C8A;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+        
+        .usb-node {
+            width: 60px;
+            height: 60px;
+            background-color: #7ED321;
+            border: 2px solid #5FA319;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .network-node {
+            width: 70px;
+            height: 70px;
+            background-color: #F5A623;
+            border: 2px solid #C78419;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: rotate(45deg);
+        }
+        
+        .network-node span {
+            transform: rotate(-45deg);
+        }
+        
+        .edge-demo {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+        
+        .edge-line {
+            width: 200px;
+            height: 3px;
+            background-color: #999;
+            position: relative;
+            margin: 10px 0;
+        }
+        
+        .edge-line::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -3px;
+            width: 0;
+            height: 0;
+            border-left: 9px solid #999;
+            border-top: 4.5px solid transparent;
+            border-bottom: 4.5px solid transparent;
+        }
+        
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .color-swatch {
+            padding: 20px;
+            border-radius: 4px;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        
+        .specs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .specs-table th,
+        .specs-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .specs-table th {
+            background-color: #34495e;
+            color: white;
+        }
+        
+        .specs-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Scanvas グラフスタイル定義</h1>
+        <p>このページは、Scanvasプロジェクトで使用されるグラフの視覚的なスタイルを示しています。</p>
+        
+        <h2>1. ノードタイプ別スタイル</h2>
+        
+        <div class="node-demo-section">
+            <div class="node-card">
+                <h3>Computer</h3>
+                <p>PC本体</p>
+                <div class="node-visual">
+                    <div class="computer-node">PC</div>
+                </div>
+                <ul style="text-align: left;">
+                    <li>形: 長方形</li>
+                    <li>色: #4A90E2</li>
+                    <li>サイズ: 80×60px</li>
+                    <li>枠線: #2E5C8A</li>
+                </ul>
+            </div>
+            
+            <div class="node-card">
+                <h3>USB Device</h3>
+                <p>USBデバイス</p>
+                <div class="node-visual">
+                    <div class="usb-node">USB</div>
+                </div>
+                <ul style="text-align: left;">
+                    <li>形: 楕円</li>
+                    <li>色: #7ED321</li>
+                    <li>サイズ: 60×60px</li>
+                    <li>枠線: #5FA319</li>
+                </ul>
+            </div>
+            
+            <div class="node-card">
+                <h3>Network Device</h3>
+                <p>ネットワークデバイス</p>
+                <div class="node-visual">
+                    <div class="network-node"><span>NET</span></div>
+                </div>
+                <ul style="text-align: left;">
+                    <li>形: ダイヤモンド</li>
+                    <li>色: #F5A623</li>
+                    <li>サイズ: 70×70px</li>
+                    <li>枠線: #C78419</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h2>2. エッジスタイル</h2>
+        <div class="edge-demo">
+            <p><strong>接続線の仕様:</strong></p>
+            <div class="edge-line"></div>
+            <ul>
+                <li>線の太さ: 3px</li>
+                <li>色: #999（グレー）</li>
+                <li>矢印: 三角形、スケール1.5</li>
+                <li>カーブ: ベジェ曲線</li>
+            </ul>
+        </div>
+        
+        <h2>3. カラーパレット</h2>
+        <div class="color-palette">
+            <div class="color-swatch" style="background-color: #4A90E2;">
+                #4A90E2<br>Computer Main
+            </div>
+            <div class="color-swatch" style="background-color: #2E5C8A;">
+                #2E5C8A<br>Computer Border
+            </div>
+            <div class="color-swatch" style="background-color: #7ED321;">
+                #7ED321<br>USB Main
+            </div>
+            <div class="color-swatch" style="background-color: #5FA319;">
+                #5FA319<br>USB Border
+            </div>
+            <div class="color-swatch" style="background-color: #F5A623;">
+                #F5A623<br>Network Main
+            </div>
+            <div class="color-swatch" style="background-color: #C78419;">
+                #C78419<br>Network Border
+            </div>
+            <div class="color-swatch" style="background-color: #999;">
+                #999<br>Edge Color
+            </div>
+            <div class="color-swatch" style="background-color: #FF6B6B;">
+                #FF6B6B<br>Selected
+            </div>
+        </div>
+        
+        <h2>4. 詳細仕様表</h2>
+        <table class="specs-table">
+            <thead>
+                <tr>
+                    <th>要素</th>
+                    <th>プロパティ</th>
+                    <th>値</th>
+                    <th>説明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td rowspan="5">Computer</td>
+                    <td>shape</td>
+                    <td>rectangle</td>
+                    <td>ノードの形状</td>
+                </tr>
+                <tr>
+                    <td>background-color</td>
+                    <td>#4A90E2</td>
+                    <td>背景色（青）</td>
+                </tr>
+                <tr>
+                    <td>border-color</td>
+                    <td>#2E5C8A</td>
+                    <td>枠線色（濃い青）</td>
+                </tr>
+                <tr>
+                    <td>width / height</td>
+                    <td>80px / 60px</td>
+                    <td>ノードサイズ</td>
+                </tr>
+                <tr>
+                    <td>border-width</td>
+                    <td>2px</td>
+                    <td>枠線の太さ</td>
+                </tr>
+                
+                <tr>
+                    <td rowspan="5">USB Device</td>
+                    <td>shape</td>
+                    <td>ellipse</td>
+                    <td>ノードの形状</td>
+                </tr>
+                <tr>
+                    <td>background-color</td>
+                    <td>#7ED321</td>
+                    <td>背景色（緑）</td>
+                </tr>
+                <tr>
+                    <td>border-color</td>
+                    <td>#5FA319</td>
+                    <td>枠線色（濃い緑）</td>
+                </tr>
+                <tr>
+                    <td>width / height</td>
+                    <td>60px / 60px</td>
+                    <td>ノードサイズ</td>
+                </tr>
+                <tr>
+                    <td>border-width</td>
+                    <td>2px</td>
+                    <td>枠線の太さ</td>
+                </tr>
+                
+                <tr>
+                    <td rowspan="5">Network Device</td>
+                    <td>shape</td>
+                    <td>diamond</td>
+                    <td>ノードの形状</td>
+                </tr>
+                <tr>
+                    <td>background-color</td>
+                    <td>#F5A623</td>
+                    <td>背景色（オレンジ）</td>
+                </tr>
+                <tr>
+                    <td>border-color</td>
+                    <td>#C78419</td>
+                    <td>枠線色（濃いオレンジ）</td>
+                </tr>
+                <tr>
+                    <td>width / height</td>
+                    <td>70px / 70px</td>
+                    <td>ノードサイズ</td>
+                </tr>
+                <tr>
+                    <td>border-width</td>
+                    <td>2px</td>
+                    <td>枠線の太さ</td>
+                </tr>
+                
+                <tr>
+                    <td rowspan="4">Edge</td>
+                    <td>width</td>
+                    <td>3px</td>
+                    <td>線の太さ</td>
+                </tr>
+                <tr>
+                    <td>line-color</td>
+                    <td>#999</td>
+                    <td>線の色（グレー）</td>
+                </tr>
+                <tr>
+                    <td>target-arrow-shape</td>
+                    <td>triangle</td>
+                    <td>矢印の形状</td>
+                </tr>
+                <tr>
+                    <td>curve-style</td>
+                    <td>bezier</td>
+                    <td>カーブスタイル</td>
+                </tr>
+                
+                <tr>
+                    <td rowspan="2">Selected</td>
+                    <td>border-color</td>
+                    <td>#FF6B6B</td>
+                    <td>選択時の枠線色（赤）</td>
+                </tr>
+                <tr>
+                    <td>border-width</td>
+                    <td>4px</td>
+                    <td>選択時の枠線太さ</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h2>5. インタラクション</h2>
+        <ul>
+            <li><strong>ノード選択:</strong> クリックすると枠線が赤色（#FF6B6B）に変わり、太さが4pxになります</li>
+            <li><strong>ノードクリック:</strong> 右側のパネルにノードの詳細情報が表示されます</li>
+            <li><strong>エッジ選択:</strong> クリックすると太さが5pxになり、色が赤色（#FF6B6B）に変わります</li>
+            <li><strong>ズーム:</strong> マウスホイールで0.5倍〜3倍の範囲でズーム可能</li>
+            <li><strong>パン:</strong> ドラッグでグラフ全体を移動可能</li>
+        </ul>
+        
+        <h2>6. レイアウト</h2>
+        <ul>
+            <li><strong>アルゴリズム:</strong> breadthfirst（幅優先探索）</li>
+            <li><strong>ルート:</strong> PC本体ノード（local_pc）</li>
+            <li><strong>パディング:</strong> 50px</li>
+            <li><strong>間隔係数:</strong> 1.5</li>
+            <li><strong>アニメーション:</strong> 500ms</li>
+        </ul>
+    </div>
+</body>
+</html>

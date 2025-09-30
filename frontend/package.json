@@ -1,0 +1,21 @@
+{
+  "name": "scanvas-frontend",
+  "version": "1.0.0",
+  "description": "Frontend visualization for Scanvas network scanner",
+  "main": "app.js",
+  "scripts": {
+    "start": "python3 -m http.server 8080",
+    "dev": "python3 -m http.server 8080"
+  },
+  "keywords": [
+    "network",
+    "visualization",
+    "cytoscape",
+    "graph"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "cytoscape": "^3.26.0"
+  }
+}
