@@ -47,6 +47,7 @@ python backend/system_info.py
 
 - `system_info.py`から取得した PC 情報を中心ノードとして追加
 - USB デバイスツリーをノードとエッジに変換（再帰的処理）
+- `usb_scanner.py`が利用可能な場合は実際の USB デバイス情報を使用
 - 将来的にネットワークデバイスも統合予定
 
 **実行方法:**
@@ -80,12 +81,58 @@ python backend/data_formatter.py
 }
 ```
 
+### `usb_scanner.py` (Issue #3)
+
+USB 接続デバイスの階層構造をスキャンし、親子関係を含むツリー構造で返します。
+
+**機能:**
+
+- 接続されているすべての USB デバイスを検出
+- デバイスの詳細情報（ベンダー ID、プロダクト ID、メーカー、製品名）を取得
+- USB ハブとデバイスの親子関係を解析
+- 階層構造の JSON 形式で出力
+
+**実行方法:**
+
+```bash
+python backend/usb_scanner.py
+```
+
+**出力例:**
+
+```json
+{
+    "node_type": "USB Root",
+    "label": "USB Root Hubs",
+    "children": [
+        {
+            "node_type": "USB Device",
+            "label": "VIA Labs, Inc. USB Hub",
+            "details": {
+                "bus": 1,
+                "address": 2,
+                "vendor_id": "0x2109",
+                "product_id": "0x2817"
+            },
+            "children": [...]
+        }
+    ]
+}
+```
+
+**注意事項:**
+
+- pyusb ライブラリが必要です
+- devcontainer 環境では USB デバイスへのアクセスが制限される場合があります
+- アクセス権限エラーが発生する場合は、適切な権限設定が必要です
+
 ## 依存関係
 
 ### requirements.txt
 
 ```
 psutil
+pyusb
 ```
 
 **インストール方法:**
@@ -104,7 +151,17 @@ python backend/system_info.py
 
 実際の PC 情報が JSON 形式で出力されることを確認してください。
 
-### 2. データフォーマットのテスト
+### 2. USB デバイススキャンのテスト
+
+```bash
+python backend/usb_scanner.py
+```
+
+接続されている USB デバイスの階層構造が JSON 形式で出力されることを確認してください。
+
+**注意:** devcontainer 環境では USB デバイスへのアクセスが制限される場合があります。エラーが発生した場合は、エラーメッセージが JSON 形式で返されます。
+
+### 3. データフォーマットのテスト
 
 ```bash
 python backend/data_formatter.py
@@ -113,10 +170,13 @@ python backend/data_formatter.py
 Cytoscape.js 形式の JSON が出力され、以下が含まれることを確認してください:
 
 - `local_pc`ノード（実際のホスト名とシステム詳細）
-- USB デバイスノード（モックデータ）
+- USB デバイスノード（実際のデバイス情報またはモックデータ）
 - ノード間のエッジ（接続関係）
 
 ## 今後の実装予定
+
+- **Issue #4**: ローカルネットワークデバイススキャン機能（`network_scanner.py`）
+- **Issue #6**: 各機能の単体テスト
 
 - **Issue #3**: USB 接続デバイスの階層構造スキャン機能（`usb_scanner.py`）
 - **Issue #4**: ローカルネットワークデバイススキャン機能（`network_scanner.py`）
