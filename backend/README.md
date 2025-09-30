@@ -181,3 +181,11 @@ Cytoscape.js 形式の JSON が出力され、以下が含まれることを確�
 - **Issue #3**: USB 接続デバイスの階層構造スキャン機能（`usb_scanner.py`）
 - **Issue #4**: ローカルネットワークデバイススキャン機能（`network_scanner.py`）
 - **Issue #6**: 各機能の単体テスト
+
+## Issue レポートの配置
+
+実装した Issue の詳細なレポート（実装内容、テスト手順、完了条件など）はリポジトリのルールとして `docs/issue_report` ディレクトリに作成してください。
+
+- ファイル名: `ISSUE_<number>_REPORT.md`（例: `ISSUE_3_REPORT.md`）
+- テンプレート: `docs/issue_report/ISSUE_REPORT_TEMPLATE.md` をコピーして使用してください
+- 既存のレポートは移動済みまたは `docs/issue_report` に複製されています。新しいレポートは必ず `docs/issue_report` に追加してください。

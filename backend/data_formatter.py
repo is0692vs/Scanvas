@@ -52,7 +52,10 @@ def format_for_cytoscape(system_info_json, usb_tree):
 
     # 2. USBデバイスをノードとエッジとして追加する再帰関数
     def process_usb_node(usb_node, parent_id):
-        node_id = usb_node["label"].replace(" ", "_")
+        """USBノードをCytoscapeの要素に変換し、elementsリストに追加する"""
+        # usb_nodeに含まれるユニークなIDをそのまま使う
+        node_id = usb_node["node_id"]
+
         elements.append({
             "group": "nodes",
             "data": {

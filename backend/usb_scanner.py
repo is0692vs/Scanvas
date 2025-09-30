@@ -35,7 +35,10 @@ def build_device_tree():
     for dev in devices:
         details = get_device_details(dev)
         label = f"{details['manufacturer']} {details['product']}".strip()
+        # バス番号とアドレスからユニークなIDを生成
+        node_id = f"usb_{dev.bus}_{dev.address}"
         device_map[dev.address] = {
+            "node_id": node_id,  # IDをデータに含める
             "node_type": "USB Device",
             "label": label if label != "N/A N/A" else "Unknown USB Device",
             "details": details,
