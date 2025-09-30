@@ -2,26 +2,33 @@ import json
 # Issue #2で作成した関数をインポート
 from system_info import get_system_info
 
-# --- モックデータ (未実装の機能用) ---
-# 本来は usb_scanner.build_device_tree() から取得する
-MOCK_USB_TREE = {
-    "node_type": "USB Root",
-    "children": [
-        {
-            "node_type": "USB Device",
-            "label": "VIA Labs, Inc. USB Hub",
-            "details": {"vendor_id": "0x1234"},
-            "children": [
-                {
-                    "node_type": "USB Device",
-                    "label": "HHKB-Hybrid",
-                    "details": {"vendor_id": "0x5678"},
-                    "children": []
-                }
-            ]
-        }
-    ]
-}
+# Issue #3で作成したUSBスキャナーをインポート
+USB_SCANNER_AVAILABLE = False
+MOCK_USB_TREE = None
+
+try:
+    from usb_scanner import build_device_tree
+    USB_SCANNER_AVAILABLE = True
+except ImportError:
+    # フォールバック用のモックデータ
+    MOCK_USB_TREE = {
+        "node_type": "USB Root",
+        "children": [
+            {
+                "node_type": "USB Device",
+                "label": "VIA Labs, Inc. USB Hub",
+                "details": {"vendor_id": "0x1234"},
+                "children": [
+                    {
+                        "node_type": "USB Device",
+                        "label": "HHKB-Hybrid",
+                        "details": {"vendor_id": "0x5678"},
+                        "children": []
+                    }
+                ]
+            }
+        ]
+    }
 
 
 def format_for_cytoscape(system_info_json, usb_tree):
@@ -45,7 +52,10 @@ def format_for_cytoscape(system_info_json, usb_tree):
 
     # 2. USBデバイスをノードとエッジとして追加する再帰関数
     def process_usb_node(usb_node, parent_id):
-        node_id = usb_node["label"].replace(" ", "_")
+        """USBノードをCytoscapeの要素に変換し、elementsリストに追加する"""
+        # usb_nodeに含まれるユニークなIDをそのまま使う
+        node_id = usb_node["node_id"]
+
         elements.append({
             "group": "nodes",
             "data": {
@@ -76,9 +86,14 @@ if __name__ == "__main__":
     # Issue #2の関数を呼び出して、実際のPC情報を取得
     actual_system_info_json = get_system_info()
 
-    # 実際のPC情報と、USBのモックデータを使ってフォーマット関数を呼び出す
-    cytoscape_json = format_for_cytoscape(
-        actual_system_info_json, MOCK_USB_TREE)
+    # USB情報を取得（利用可能な場合は実際のスキャン、そうでなければモック）
+    if USB_SCANNER_AVAILABLE:
+        usb_tree = build_device_tree()
+    else:
+        usb_tree = MOCK_USB_TREE
+
+    # 実際のPC情報とUSB情報を使ってフォーマット関数を呼び出す
+    cytoscape_json = format_for_cytoscape(actual_system_info_json, usb_tree)
 
     # 整形されたJSONを画面に出力
     print(json.dumps(cytoscape_json, indent=2))
