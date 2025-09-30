@@ -1,0 +1,22 @@
+{
+  "name": "scanvas-frontend",
+  "version": "1.0.0",
+  "description": "Scanvas - Local device and network scanner desktop application",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev"
+  },
+  "keywords": [
+    "electron",
+    "desktop",
+    "scanner",
+    "network",
+    "usb"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^38.2.0"
+  }
+}

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scanvas - Device Scanner</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>Scanvas</h1>
+            <p>ローカルデバイス・ネットワークスキャナー</p>
+        </header>
+        <main>
+            <div id="graph-container">
+                <!-- Cytoscape.jsのグラフ表示エリア -->
+                <p>グラフ表示エリア（Cytoscape.js統合予定）</p>
+            </div>
+            <aside id="device-info">
+                <h2>デバイス情報</h2>
+                <div id="info-content">
+                    <p>デバイスを選択すると詳細情報が表示されます</p>
+                </div>
+            </aside>
+        </main>
+        <footer>
+            <button id="scan-btn">スキャン開始</button>
+            <div id="status">準備完了</div>
+        </footer>
+    </div>
+    <script src="renderer.js"></script>
+</body>
+</html>
