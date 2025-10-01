@@ -106,9 +106,25 @@ window.addEventListener("DOMContentLoaded", () => {
   // ノードクリック時のイベントハンドラ
   cy.on("tap", "node", function (evt) {
     const node = evt.target;
-    document.getElementById("info-panel").innerHTML = `<h3>${node.data(
-      "label"
-    )}</h3><p>Type: ${node.data("type")}</p><p>ID: ${node.data("id")}</p>`;
+    const data = node.data();
+
+    const titleEl = document.getElementById("info-title");
+    const contentEl = document.getElementById("info-content");
+
+    titleEl.innerText = data.label;
+
+    let contentHTML = `<p><strong>Type:</strong> ${data.type}</p>`;
+
+    if (data.details) {
+      if (data.type === "Computer" && data.details.os) {
+        contentHTML += `<p><strong>OS:</strong> ${data.details.os.system}</p>`;
+      } else if (data.type === "USB Device" && data.details.vendor_id) {
+        contentHTML += `<p><strong>Vendor ID:</strong> ${data.details.vendor_id}</p>`;
+      } else if (data.type === "Network Device" && data.details.ip_address) {
+        contentHTML += `<p><strong>IP:</strong> ${data.details.ip_address}</p>`;
+      }
+    }
+    contentEl.innerHTML = contentHTML;
   });
 
   // エッジクリック時のイベントハンドラ
@@ -126,9 +142,12 @@ window.addEventListener("DOMContentLoaded", () => {
   // 背景クリック時のイベントハンドラ
   cy.on("tap", function (evt) {
     if (evt.target === cy) {
-      document.getElementById(
-        "info-panel"
-      ).innerHTML = `<h3>操作方法</h3><p>🖱️ ドラッグ: グラフを移動</p><p>🔍 スクロール: ズーム</p><p>👆 クリック: ノード情報を表示</p>`;
+      document.getElementById("info-title").innerText = "操作方法";
+      document.getElementById("info-content").innerHTML = `
+            <p>🖱️ ドラッグ: グラフを移動</p>
+            <p>🔍 スクロール: ズーム</p>
+            <p>👆 クリック: ノード情報を表示</p>
+        `;
     }
   });
 });
