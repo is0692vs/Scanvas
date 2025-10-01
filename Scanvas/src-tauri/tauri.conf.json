@@ -30,6 +30,6 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "externalBin": ["binaries/data_formatter"]
+    "resources": []
   }
 }

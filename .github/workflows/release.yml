@@ -52,22 +52,19 @@ jobs:
       # PyInstaller でバイナリを生成
       - name: Build Python binary with PyInstaller
         run: |
-            pip install -r requirements.txt
-            cd backend
-            pyinstaller --onefile --name data_formatter data_formatter.py
+          pip install -r requirements.txt
+          cd backend
+          pyinstaller --onefile --name data_formatter data_formatter.py
         shell: bash
 
-
-      # プラットフォーム別にバイナリを配置
-      - name: Copy Python binary to Tauri binaries directory
+      # バイナリを src-tauri のビルドディレクトリにコピー
+      - name: Copy Python binary to build directory
         run: |
-          mkdir -p Scanvas/src-tauri/binaries
-          if [ "${{ matrix.platform }}" == "macos-latest" ]; then
-            cp backend/dist/data_formatter Scanvas/src-tauri/binaries/data_formatter-aarch64-apple-darwin
-          elif [ "${{ matrix.platform }}" == "ubuntu-latest" ]; then
-            cp backend/dist/data_formatter Scanvas/src-tauri/binaries/data_formatter-x86_64-unknown-linux-gnu
-          elif [ "${{ matrix.platform }}" == "windows-latest" ]; then
-            cp backend/dist/data_formatter.exe Scanvas/src-tauri/binaries/data_formatter-x86_64-pc-windows-msvc.exe
+          if [ "${{ matrix.platform }}" == "windows-latest" ]; then
+            cp backend/dist/data_formatter.exe Scanvas/src-tauri/
+          else
+            cp backend/dist/data_formatter Scanvas/src-tauri/
+            chmod +x Scanvas/src-tauri/data_formatter
           fi
         shell: bash
 

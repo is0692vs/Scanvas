@@ -47,19 +47,37 @@ async fn run_scan(app: tauri::AppHandle) -> Result<String, String> {
         }
     } else {
         // Production mode: use bundled binary
-        let sidecar_path = app.path()
-            .resolve_resource("data_formatter")
-            .ok_or("Failed to resolve sidecar binary")?;
+        // The binary is in the same directory as the executable
+        let exe_path = std::env::current_exe()
+            .map_err(|e| format!("Failed to get executable path: {}", e))?;
 
-        println!("[Rust] Production mode - binary path: {:?}", sidecar_path);
+        let exe_dir = exe_path.parent()
+            .ok_or("Failed to get executable directory")?;
 
-        if !sidecar_path.exists() {
-            return Err(format!("Binary not found at: {:?}", sidecar_path));
+        // Try different possible locations
+        let possible_paths = vec![
+            exe_dir.join("data_formatter"), // Linux/macOS
+            exe_dir.join("data_formatter.exe"), // Windows
+            exe_dir.join("binaries").join("data_formatter"),
+            exe_dir.join("binaries").join("data_formatter.exe"),
+        ];
+
+        let mut binary_path = None;
+        for path in possible_paths {
+            println!("[Rust] Checking path: {:?}", path);
+            if path.exists() {
+                binary_path = Some(path);
+                break;
+            }
         }
 
-        println!("[Rust] Attempting to run binary at: {:?}", sidecar_path);
+        let binary_path = binary_path
+            .ok_or("Binary not found in any expected location")?;
 
-        let output = Command::new(&sidecar_path)
+        println!("[Rust] Production mode - binary path: {:?}", binary_path);
+        println!("[Rust] Attempting to run binary at: {:?}", binary_path);
+
+        let output = Command::new(&binary_path)
             .output()
             .map_err(|e| {
                 let error_msg = format!("Failed to execute binary: {}", e);
