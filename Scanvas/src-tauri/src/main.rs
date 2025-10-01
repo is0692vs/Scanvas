@@ -1,45 +1,49 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::process::Command;
+use tauri::Manager;
 
 #[tauri::command]
-async fn run_scan() -> Result<String, String> {
+async fn run_scan(app: tauri::AppHandle) -> Result<String, String> {
     println!("[Rust] run_scan command called");
     let python_path = "python3";
-    
-    // Get the path to the backend script
-    let current_dir = std::env::current_dir()
-        .map_err(|e| format!("Failed to get current directory: {}", e))?;
-    println!("[Rust] Current directory: {:?}", current_dir);
-    
+
     let script_path = if cfg!(debug_assertions) {
-        // Development mode: navigate to workspace root and find backend
-        // Current dir is /workspaces/Scanvas/Scanvas/src-tauri
-        // Need to go up 2 levels to get to /workspaces/Scanvas
-        // Backend is at /workspaces/Scanvas/backend/data_formatter.py
+        // Development mode
+        let current_dir = std::env::current_dir()
+            .map_err(|e| format!("Failed to get current directory: {}", e))?;
+        println!("[Rust] Current directory: {:?}", current_dir);
+
         let scanvas_dir = current_dir.parent()
             .ok_or("Failed to get parent directory (Scanvas)")?;
         println!("[Rust] Scanvas directory: {:?}", scanvas_dir);
-        
+
         let workspace_root = scanvas_dir.parent()
             .ok_or("Failed to get parent directory (workspace root)")?;
         println!("[Rust] Workspace root: {:?}", workspace_root);
-        
+
         let backend_path = workspace_root.join("backend/data_formatter.py");
         println!("[Rust] Trying backend path: {:?}", backend_path);
-        
+
         if !backend_path.exists() {
-            return Err(format!("Backend script not found at: {:?}. Current dir was: {:?}", backend_path, current_dir));
+            return Err(format!("Backend script not found at: {:?}", backend_path));
         }
-        
+
         backend_path
     } else {
-        // Production mode: script should be bundled with the app
-        std::env::current_exe()
-            .map_err(|e| format!("Failed to get current executable path: {}", e))?
-            .parent()
-            .ok_or("Failed to get parent directory")?
-            .join("backend/data_formatter.py")
+        // Production mode: use bundled resources
+        let resource_dir = app.path()
+            .resource_dir()
+            .map_err(|e| format!("Failed to get resource dir: {}", e))?;
+
+        let backend_path = resource_dir.join("backend").join("data_formatter.py");
+        println!("[Rust] Production mode - backend path: {:?}", backend_path);
+
+        if !backend_path.exists() {
+            return Err(format!("Backend script not found at: {:?}", backend_path));
+        }
+
+        backend_path
     };
 
     println!("[Rust] Attempting to run Python script at: {:?}", script_path);
@@ -56,7 +60,7 @@ async fn run_scan() -> Result<String, String> {
 
     println!("[Rust] Python exit status: {}", output.status);
     println!("[Rust] Python stdout length: {} bytes", output.stdout.len());
-    
+
     let stderr_output = String::from_utf8_lossy(&output.stderr);
     if !stderr_output.is_empty() {
         println!("[Rust] Python stderr: {}", stderr_output);
@@ -70,7 +74,7 @@ async fn run_scan() -> Result<String, String> {
                 error_msg
             })?;
         println!("[Rust] Successfully received {} bytes from Python", stdout.len());
-        println!("[Rust] First 200 chars of output: {}", 
+        println!("[Rust] First 200 chars of output: {}",
                  if stdout.len() > 200 { &stdout[..200] } else { &stdout });
         Ok(stdout)
     } else {
