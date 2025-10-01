@@ -2,13 +2,15 @@
   "name": "scanvas-frontend",
   "version": "1.0.0",
   "description": "Frontend for Scanvas - Network Topology Visualization",
-  "main": "index.html",
+  "main": "main.js",
   "scripts": {
-    "serve": "python3 -m http.server 8000",
-    "install-cytoscape": "curl -L -o cytoscape.min.js https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js"
+    "start": "electron . --no-sandbox"
   },
   "dependencies": {
     "cytoscape": "^3.28.1"
+  },
+  "devDependencies": {
+    "electron": "^33.2.1"
   },
   "keywords": [
     "cytoscape",

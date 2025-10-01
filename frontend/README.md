@@ -4,89 +4,51 @@ This directory contains the frontend application for the Scanvas project.
 
 ## 概要
 
-Cytoscape.js を使用してネットワークトポロジーをグラフとして可視化するフロントエンドアプリケーションです。
+Scanvasのフロントエンドは、Cytoscape.jsを使用してPC、USBデバイス、ネットワークデバイスの接続関係を視覚化します。
 
 ## ファイル構成
 
 - `index.html` - メインHTMLファイル
-- `app.js` - Cytoscape.js の初期化とグラフ描画ロジック
+- `app.js` - Cytoscape.jsの初期化とグラフスタイル定義
+- `styles.css` - ページ全体のスタイル定義
 
-## 実行方法
+## グラフスタイル定義
 
-### ローカルでの実行
+### ノードタイプ別スタイル
 
-シンプルなHTTPサーバーを起動してブラウザで開きます：
+#### Computer（PC本体）
+- **形**: 長方形 (rectangle)
+- **色**: 青色 (#4A90E2)
+- **サイズ**: 80px × 60px
+- **枠線**: 濃い青 (#2E5C8A)
+
+#### USB Device（USBデバイス）
+- **形**: 楕円 (ellipse)
+- **色**: 緑色 (#7ED321)
+- **サイズ**: 60px × 60px
+- **枠線**: 濃い緑 (#5FA319)
+
+#### Network Device（ネットワークデバイス）
+- **形**: ダイヤモンド (diamond)
+- **色**: オレンジ色 (#F5A623)
+- **サイズ**: 70px × 70px
+- **枠線**: 濃いオレンジ (#C78419)
+
+### エッジスタイル
+
+- **線の太さ**: 3px
+- **色**: グレー (#999)
+- **矢印**: 三角形、方向は子ノードへ
+- **カーブ**: ベジェ曲線
+
+## セットアップと実行
+
+Electronでデスクトップアプリとして実行します。
 
 ```bash
-# Python 3の場合
+# 依存関係をインストール
 cd frontend
-python3 -m http.server 8000
+npm install
 
-# Node.jsがインストールされている場合
-npx http-server frontend -p 8000
-```
-
-ブラウザで `http://localhost:8000` を開きます。
-
-## 機能
-
-### グラフ可視化
-
-- **ノード表示**: システム情報、USBデバイス、ネットワークデバイスをノードとして表示
-- **エッジ表示**: デバイス間の接続関係を矢印で表示
-- **レイアウト**: CoSEレイアウトアルゴリズムで自動配置
-
-### ノードタイプとスタイル
-
-- **Computer (PC本体)**: 赤色、大きめの円形
-- **USB Device**: 紫色、角丸四角形
-- **Network Device**: 緑色、ひし形
-
-### インタラクション
-
-- **ドラッグ**: グラフ全体を移動
-- **スクロール**: ズームイン/アウト
-- **ノードクリック**: ノードの詳細情報を表示
-- **エッジクリック**: 接続情報を表示
-
-## データフォーマット
-
-バックエンドの `data_formatter.py` が生成する Cytoscape.js 形式の JSON を使用します：
-
-```json
-{
-  "elements": [
-    {
-      "group": "nodes",
-      "data": {
-        "id": "local_pc",
-        "label": "hostname",
-        "type": "Computer",
-        "details": {...}
-      }
-    },
-    {
-      "group": "edges",
-      "data": {
-        "source": "parent_id",
-        "target": "child_id"
-      }
-    }
-  ]
-}
-```
-
-## サンプルデータ
-
-`app.js` には、以下を含むサンプルデータが実装されています：
-
-- PC本体（Computer）
-- USBハブとキーボード（USB Device）
-- ネットワークデバイス（Network Device）
-
-## 今後の拡張
-
-- バックエンドAPIとの統合（リアルタイムデータ取得）
-- データの動的更新機能
-- ノードの検索・フィルタリング機能
-- グラフのエクスポート機能
+# アプリを起動
+npm start
