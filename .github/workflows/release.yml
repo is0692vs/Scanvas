@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*'
 
+# 権限を追加
+permissions:
+  contents: write
+
 jobs:
   release:
     strategy:
@@ -22,15 +26,15 @@ jobs:
         with:
           node-version: 20
 
-      # npm install を追加
+      # 大文字の Scanvas に修正
       - name: Install frontend dependencies
-        run: npm install
-        working-directory: ./scanvas
+        run: |
+          cd Scanvas
+          npm install
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
-      # Ubuntu の依存関係を修正
       - name: Install dependencies (ubuntu)
         if: matrix.platform == 'ubuntu-latest'
         run: |
@@ -40,7 +44,7 @@ jobs:
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
-          workspaces: './scanvas/src-tauri -> target'
+          workspaces: './Scanvas/src-tauri -> target'
 
       - name: Build Tauri App
         uses: tauri-apps/tauri-action@v0
@@ -52,4 +56,4 @@ jobs:
           releaseBody: 'See the assets to download this version.'
           releaseDraft: true
           prerelease: false
-          projectPath: './scanvas'
+          projectPath: './Scanvas'
