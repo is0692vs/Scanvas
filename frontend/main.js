@@ -3,6 +3,9 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("path");
 
+app.commandLine.appendSwitch('disable-gpu');//gpu使用をやめる
+
+
 // ウィンドウを作成する関数
 function createWindow() {
   const mainWindow = new BrowserWindow({

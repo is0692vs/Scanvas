@@ -4,7 +4,7 @@
   "description": "This directory contains the frontend application for the Scanvas project.",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
+    "start": "electron . --no-sandbox",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
