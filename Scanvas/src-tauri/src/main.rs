@@ -14,22 +14,30 @@ async fn run_scan(app: tauri::AppHandle) -> Result<String, String> {
             .map_err(|e| format!("Failed to get current directory: {}", e))?;
         println!("[Rust] Current directory: {:?}", current_dir);
 
-        let scanvas_dir = current_dir.parent()
-            .ok_or("Failed to get parent directory (Scanvas)")?;
-        println!("[Rust] Scanvas directory: {:?}", scanvas_dir);
+        // Try src-tauri/backend first (copied version)
+        let local_backend = current_dir.join("backend").join("data_formatter.py");
+        if local_backend.exists() {
+            println!("[Rust] Using local backend: {:?}", local_backend);
+            local_backend
+        } else {
+            // Fallback to workspace root
+            let scanvas_dir = current_dir.parent()
+                .ok_or("Failed to get parent directory (Scanvas)")?;
+            println!("[Rust] Scanvas directory: {:?}", scanvas_dir);
 
-        let workspace_root = scanvas_dir.parent()
-            .ok_or("Failed to get parent directory (workspace root)")?;
-        println!("[Rust] Workspace root: {:?}", workspace_root);
+            let workspace_root = scanvas_dir.parent()
+                .ok_or("Failed to get parent directory (workspace root)")?;
+            println!("[Rust] Workspace root: {:?}", workspace_root);
 
-        let backend_path = workspace_root.join("backend/data_formatter.py");
-        println!("[Rust] Trying backend path: {:?}", backend_path);
+            let backend_path = workspace_root.join("backend").join("data_formatter.py");
+            println!("[Rust] Trying workspace backend path: {:?}", backend_path);
 
-        if !backend_path.exists() {
-            return Err(format!("Backend script not found at: {:?}", backend_path));
+            if !backend_path.exists() {
+                return Err(format!("Backend script not found at: {:?}", backend_path));
+            }
+
+            backend_path
         }
-
-        backend_path
     } else {
         // Production mode: use bundled resources
         let resource_dir = app.path()
