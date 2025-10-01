@@ -11,10 +11,10 @@ async fn run_scan() -> Result<String, String> {
     // Use absolute path construction based on project root
     let script_path = if cfg!(debug_assertions) {
         // Development mode: use path relative to workspace root
-        // When running from Scanvas directory, backend is at ../../backend/
+        // When running from Scanvas directory, backend is at ../backend/
         std::env::current_dir()
             .map_err(|e| format!("Failed to get current directory: {}", e))?
-            .join("../../backend/data_formatter.py")
+            .join("../backend/data_formatter.py")
             .canonicalize()
             .map_err(|e| format!("Failed to resolve backend path: {}. Make sure the backend directory exists.", e))?
     } else {
