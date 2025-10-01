@@ -2,9 +2,37 @@
 
 // DOMの準備が完了してから全ての処理を開始します
 window.addEventListener("DOMContentLoaded", () => {
-  // DOMの準備が完了した後にAPIと変数を定義します
-  const invoke = window.__TAURI__.invoke;
+  console.log("[Frontend] DOMContentLoaded - Initializing Scanvas");
+
+  // Tauri v2 APIをチェック
+  console.log(
+    "[Frontend] window.__TAURI__ available:",
+    typeof window.__TAURI__ !== "undefined"
+  );
+  if (window.__TAURI__) {
+    console.log("[Frontend] __TAURI__ keys:", Object.keys(window.__TAURI__));
+  }
+
+  // Tauri v2ではinvokeはcoreモジュール内にある
+  const invoke = window.__TAURI__?.core?.invoke || window.__TAURI__?.invoke;
   const cytoscape = window.cytoscape;
+
+  console.log(
+    "[Frontend] Tauri invoke available:",
+    typeof invoke === "function"
+  );
+  console.log(
+    "[Frontend] Cytoscape available:",
+    typeof cytoscape === "function"
+  );
+
+  if (typeof invoke !== "function") {
+    console.error("[Frontend Error] Tauri invoke function not found!");
+    console.error(
+      "[Frontend Error] Please ensure Tauri API is loaded correctly"
+    );
+    return;
+  }
 
   let cy = null;
   const scanButton = document.getElementById("scan-button");
@@ -107,17 +135,25 @@ window.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // メインの処理
-  scanButton.addEventListener("click", async () => {
+  // スキャン実行関数
+  async function performScan() {
+    console.log("[Frontend] Starting scan...");
     try {
       infoTitle.innerText = "スキャン中...";
       infoContent.innerHTML = "<p>バックエンド処理を実行しています...</p>";
       scanButton.disabled = true;
 
+      console.log('[Frontend] Calling invoke("run_scan")...');
       const jsonString = await invoke("run_scan");
+      console.log("[Frontend] Received response, length:", jsonString.length);
       const graphData = JSON.parse(jsonString);
 
-      console.log("バックエンドから受信したデータ:", graphData);
+      console.log("[Frontend] Parsed JSON successfully");
+      console.log("[Frontend] Graph data:", graphData);
+      console.log(
+        "[Frontend] Number of elements:",
+        graphData.elements ? graphData.elements.length : "undefined"
+      );
 
       setupCytoscape(graphData.elements);
 
@@ -126,14 +162,43 @@ window.addEventListener("DOMContentLoaded", () => {
         cy.edges().length
       }個の接続が見つかりました。</p>`;
     } catch (error) {
-      console.error("スキャン中にエラーが発生しました:", error);
+      console.error("[Frontend Error] Scan failed:", error);
+      console.error("[Frontend Error] Error type:", typeof error);
+      console.error(
+        "[Frontend Error] Error message:",
+        error.message || error.toString()
+      );
       infoTitle.innerText = "エラー";
-      infoContent.innerHTML = `<p>スキャンに失敗しました。詳細はコンソールを確認してください。</p>`;
+      infoContent.innerHTML = `<p>スキャンに失敗しました: ${
+        error.message || error
+      }</p>`;
     } finally {
       scanButton.disabled = false;
     }
+  }
+
+  // ボタンクリック時
+  scanButton.addEventListener("click", () => {
+    console.log("[Frontend] Scan button clicked");
+    performScan();
   });
+
+  // 自動スキャンイベントのリスナー
+  if (window.__TAURI__?.event?.listen) {
+    window.__TAURI__.event.listen("auto-scan", () => {
+      console.log("[Frontend] Auto-scan event received");
+      performScan();
+    });
+  }
 
   // 初期表示
   setupCytoscape([]);
+  console.log("[Frontend] Initialization complete - Ready to scan");
+
+  // 起動後すぐに自動スキャンを実行
+  console.log("[Frontend] Triggering initial auto-scan in 1 second...");
+  setTimeout(() => {
+    console.log("[Frontend] Executing initial auto-scan");
+    performScan();
+  }, 1000);
 });
