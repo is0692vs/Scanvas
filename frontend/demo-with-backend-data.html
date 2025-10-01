@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scanvas - Backend Data Demo</title>
+    <script src="cytoscape-mock.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .container {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+
+        #cy {
+            flex: 1;
+            background-color: #ffffff;
+        }
+
+        .controls {
+            width: 300px;
+            background: white;
+            padding: 20px;
+            box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+            overflow-y: auto;
+        }
+
+        .controls h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .controls textarea {
+            width: 100%;
+            height: 200px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .controls button {
+            width: 100%;
+            padding: 10px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .controls button:hover {
+            background-color: #2980b9;
+        }
+
+        .info {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #ecf0f1;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Scanvas - Backend Data Demo</h1>
+    </header>
+    
+    <div class="container">
+        <div id="cy"></div>
+        
+        <div class="controls">
+            <h3>バックエンドデータ入力</h3>
+            <p style="font-size: 12px; margin-bottom: 10px;">
+                backend/data_formatter.py の出力をここに貼り付けてください
+            </p>
+            <textarea id="jsonInput" placeholder='{"elements": [...]}'></textarea>
+            <button onclick="loadData()">データを読み込む</button>
+            <button onclick="loadSample()">サンプルデータを読み込む</button>
+            
+            <div class="info">
+                <strong>手順:</strong><br>
+                1. バックエンドを実行: <code>python backend/data_formatter.py</code><br>
+                2. 出力をコピー<br>
+                3. 上のテキストエリアに貼り付け<br>
+                4. 「データを読み込む」をクリック
+            </div>
+            
+            <div id="status" style="margin-top: 10px;"></div>
+        </div>
+    </div>
+
+    <script>
+        let cy = null;
+        
+        function loadData() {
+            const input = document.getElementById('jsonInput').value;
+            const status = document.getElementById('status');
+            
+            try {
+                const data = JSON.parse(input);
+                
+                // Validate data structure
+                if (!data.elements || !Array.isArray(data.elements)) {
+                    throw new Error('Invalid data format: missing elements array');
+                }
+                
+                // Initialize Cytoscape
+                if (cy) {
+                    // Clear existing graph
+                    document.getElementById('cy').innerHTML = '';
+                }
+                
+                cy = cytoscape({
+                    container: document.getElementById('cy'),
+                    elements: data.elements,
+                    style: [
+                        {
+                            selector: 'node',
+                            style: {
+                                'background-color': '#3498db',
+                                'label': 'data(label)',
+                                'text-valign': 'center',
+                                'text-halign': 'center',
+                                'color': '#333',
+                                'font-size': '12px',
+                                'width': '60px',
+                                'height': '60px',
+                                'text-wrap': 'wrap',
+                                'text-max-width': '80px'
+                            }
+                        },
+                        {
+                            selector: 'node[type="Computer"]',
+                            style: {
+                                'background-color': '#e74c3c',
+                                'width': '80px',
+                                'height': '80px',
+                                'font-size': '14px',
+                                'font-weight': 'bold'
+                            }
+                        },
+                        {
+                            selector: 'node[type="USB Device"]',
+                            style: {
+                                'background-color': '#9b59b6',
+                                'shape': 'roundrectangle'
+                            }
+                        },
+                        {
+                            selector: 'node[type="Network Device"]',
+                            style: {
+                                'background-color': '#2ecc71',
+                                'shape': 'diamond'
+                            }
+                        },
+                        {
+                            selector: 'edge',
+                            style: {
+                                'width': 2,
+                                'line-color': '#95a5a6',
+                                'target-arrow-color': '#95a5a6',
+                                'target-arrow-shape': 'triangle',
+                                'curve-style': 'bezier'
+                            }
+                        }
+                    ],
+                    layout: {
+                        name: 'cose',
+                        animate: true,
+                        animationDuration: 1000,
+                        nodeRepulsion: 4000,
+                        idealEdgeLength: 100
+                    }
+                });
+                
+                status.innerHTML = `<div style="color: #27ae60;">✅ データを読み込みました！<br>ノード数: ${cy.nodes().length}<br>エッジ数: ${cy.edges().length}</div>`;
+                
+            } catch (error) {
+                status.innerHTML = `<div style="color: #e74c3c;">❌ エラー: ${error.message}</div>`;
+                console.error('Error loading data:', error);
+            }
+        }
+        
+        function loadSample() {
+            // Sample data matching backend format
+            const sampleData = {
+                "elements": [
+                    {
+                        "group": "nodes",
+                        "data": {
+                            "id": "local_pc",
+                            "label": "Sample PC",
+                            "type": "Computer",
+                            "details": {
+                                "os": {
+                                    "system": "Linux",
+                                    "release": "6.11.0"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "group": "nodes",
+                        "data": {
+                            "id": "usb_device_1",
+                            "label": "USB Device",
+                            "type": "USB Device",
+                            "details": {
+                                "vendor_id": "0x1234"
+                            }
+                        }
+                    },
+                    {
+                        "group": "edges",
+                        "data": {
+                            "source": "local_pc",
+                            "target": "usb_device_1"
+                        }
+                    }
+                ]
+            };
+            
+            document.getElementById('jsonInput').value = JSON.stringify(sampleData, null, 2);
+            loadData();
+        }
+        
+        // Load sample data on page load
+        window.onload = function() {
+            loadSample();
+        };
+    </script>
+</body>
+</html>

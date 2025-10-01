@@ -1,24 +1,24 @@
 {
   "name": "scanvas-frontend",
   "version": "1.0.0",
-  "description": "Frontend visualization for Scanvas network scanner",
+  "description": "Frontend for Scanvas - Network Topology Visualization",
   "main": "main.js",
   "scripts": {
-    "start": "electron . --no-sandbox",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "electron . --no-sandbox"
   },
-  "keywords": [
-    "network",
-    "visualization",
-    "cytoscape",
-    "graph"
-  ],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
-    "cytoscape": "^3.26.0"
+    "cytoscape": "^3.28.1"
   },
   "devDependencies": {
     "electron": "^33.2.1"
-  }
+  },
+  "keywords": [
+    "cytoscape",
+    "graph",
+    "visualization",
+    "network",
+    "topology"
+  ],
+  "author": "",
+  "license": "MIT"
 }
