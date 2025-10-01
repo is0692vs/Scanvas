@@ -1,16 +1,22 @@
 {
-  "name": "frontend",
+  "name": "scanvas-frontend",
   "version": "1.0.0",
-  "description": "This directory contains the frontend application for the Scanvas project.",
-  "main": "main.js",
+  "description": "Frontend for Scanvas - Network Topology Visualization",
+  "main": "index.html",
   "scripts": {
-    "start": "electron . --no-sandbox",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "serve": "python3 -m http.server 8000",
+    "install-cytoscape": "curl -L -o cytoscape.min.js https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js"
   },
-  "keywords": [],
+  "dependencies": {
+    "cytoscape": "^3.28.1"
+  },
+  "keywords": [
+    "cytoscape",
+    "graph",
+    "visualization",
+    "network",
+    "topology"
+  ],
   "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "electron": "^33.2.1"
-  }
+  "license": "MIT"
 }
