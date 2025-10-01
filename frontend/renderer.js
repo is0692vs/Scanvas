@@ -75,15 +75,15 @@ window.addEventListener("DOMContentLoaded", () => {
       },
       {
         selector: 'node[type="Computer"]',
-        style: { "background-color": "#e74c3c", shape: "rectangle" },
+        style: { "background-color": "#3498db", shape: "rectangle" },
       },
       {
         selector: 'node[type="USB Device"]',
-        style: { "background-color": "#9b59b6" },
+        style: { "background-color": "#2ecc71", shape: "ellipse" },
       },
       {
         selector: 'node[type="Network Device"]',
-        style: { "background-color": "#2ecc71", shape: "diamond" },
+        style: { "background-color": "#e67e22", shape: "diamond" },
       },
       {
         selector: "edge",
@@ -97,10 +97,10 @@ window.addEventListener("DOMContentLoaded", () => {
       },
       {
         selector: ":selected",
-        style: { "border-width": 3, "border-color": "#f39c12" },
+        style: { "border-width": 3, "border-color": "#e74c3c" },
       },
     ],
-    layout: { name: "cose", animate: true, animationDuration: 500 },
+    layout: { name: "breadthfirst", animate: true, animationDuration: 500 },
   });
 
   // ノードクリック時のイベントハンドラ
@@ -109,6 +109,18 @@ window.addEventListener("DOMContentLoaded", () => {
     document.getElementById("info-panel").innerHTML = `<h3>${node.data(
       "label"
     )}</h3><p>Type: ${node.data("type")}</p><p>ID: ${node.data("id")}</p>`;
+  });
+
+  // エッジクリック時のイベントハンドラ
+  cy.on("tap", "edge", function (evt) {
+    const edge = evt.target;
+    const source = cy.getElementById(edge.data("source"));
+    const target = cy.getElementById(edge.data("target"));
+    document.getElementById(
+      "info-panel"
+    ).innerHTML = `<h3>接続情報</h3><p>接続元: ${source.data(
+      "label"
+    )}</p><p>接続先: ${target.data("label")}</p>`;
   });
 
   // 背景クリック時のイベントハンドラ
