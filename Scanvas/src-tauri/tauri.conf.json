@@ -4,7 +4,8 @@
   "version": "0.1.1",
   "identifier": "com.vscode.scanvas",
   "build": {
-    "frontendDist": "../src"
+    "frontendDist": "../src",
+    "beforeBuildCommand": ""
   },
   "app": {
     "withGlobalTauri": true,
@@ -30,6 +31,6 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "resources": []
+    "resources": ["data_formatter*"]
   }
 }

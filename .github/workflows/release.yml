@@ -55,16 +55,19 @@ jobs:
           pip install -r requirements.txt
           cd backend
           pyinstaller --onefile --name data_formatter data_formatter.py
+          ls -la dist/
         shell: bash
 
-      # バイナリを src-tauri のビルドディレクトリにコピー
-      - name: Copy Python binary to build directory
+      # バイナリを src-tauri にコピー（Tauriがresourcesとして認識）
+      - name: Copy Python binary to Tauri resources
         run: |
           if [ "${{ matrix.platform }}" == "windows-latest" ]; then
             cp backend/dist/data_formatter.exe Scanvas/src-tauri/
+            ls -la Scanvas/src-tauri/data_formatter.exe
           else
             cp backend/dist/data_formatter Scanvas/src-tauri/
             chmod +x Scanvas/src-tauri/data_formatter
+            ls -la Scanvas/src-tauri/data_formatter
           fi
         shell: bash
 
