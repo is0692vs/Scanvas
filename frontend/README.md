@@ -22,7 +22,7 @@ Scanvas のフロントエンドは、Cytoscape.js を使用して PC、USB デ�
 
 - **形**: 四角 (rectangle)
 - **色**: 青色 (#3498db)
-
+#### Computer（PC本体）
 #### USB Device（USB デバイス）
 
 - **形**: 楕円 (ellipse)
