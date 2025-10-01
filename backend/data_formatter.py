@@ -1,4 +1,6 @@
 import json
+import sys
+
 # Issue #2で作成した関数をインポート
 from system_info import get_system_info
 
@@ -159,3 +161,4 @@ if __name__ == "__main__":
 
     # 整形されたJSONを画面に出力
     print(json.dumps(cytoscape_json, indent=2))
+    print("Python script finished successfully.", file=sys.stderr)

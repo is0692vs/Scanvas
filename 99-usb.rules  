@@ -1,0 +1,2 @@
+# .devcontainer/99-usb.rules
+SUBSYSTEM=="usb", GROUP="plugdev", MODE="0666"

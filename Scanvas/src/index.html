@@ -2,12 +2,18 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <title>Scanvas - Network Visualization</title>
     <link rel="stylesheet" href="styles.css" />
+    <title>Scanvas</title>
+    <script src="https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
   </head>
+
   <body>
     <div id="cy"></div>
+
     <div id="info-panel" class="info-panel">
+      <button id="scan-button">スキャン実行</button>
+      <hr style="margin: 10px 0" />
+
       <h3 id="info-title">操作方法</h3>
       <div id="info-content">
         <p>🖱️ ドラッグ: グラフを移動</p>
@@ -15,6 +21,7 @@
         <p>👆 クリック: ノード情報を表示</p>
       </div>
     </div>
+
     <script src="./renderer.js"></script>
   </body>
 </html>
