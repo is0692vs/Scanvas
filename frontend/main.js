@@ -3,27 +3,26 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("path");
 
-app.commandLine.appendSwitch('disable-gpu');//gpu使用をやめる
+app.commandLine.appendSwitch("disable-gpu");
 
-
-// ウィンドウを作成する関数
 function createWindow() {
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1200,
+    height: 800,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
   });
 
-  // index.htmlをウィンドウに読み込ませる
   mainWindow.loadFile("index.html");
+  mainWindow.webContents.openDevTools();
 }
 
-// アプリの準備ができたらウィンドウを作成
 app.whenReady().then(createWindow);
 
-// 全てのウィンドウが閉じられたらアプリを終了
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
-    // macOS以外の場合
     app.quit();
   }
 });

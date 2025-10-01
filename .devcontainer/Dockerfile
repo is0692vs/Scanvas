@@ -21,6 +21,7 @@ RUN apt-get update && apt-get install -y \
     libpango-1.0-0 \
     libcairo2 \
     libdrm2 \
+    fonts-noto-cjk \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install global npm packages as root
