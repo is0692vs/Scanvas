@@ -2,10 +2,10 @@
   "name": "scanvas-frontend",
   "version": "1.0.0",
   "description": "Frontend visualization for Scanvas network scanner",
-  "main": "app.js",
+  "main": "main.js",
   "scripts": {
-    "start": "python3 -m http.server 8080",
-    "dev": "python3 -m http.server 8080"
+    "start": "electron . --no-sandbox",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "network",
@@ -17,5 +17,8 @@
   "license": "MIT",
   "dependencies": {
     "cytoscape": "^3.26.0"
+  },
+  "devDependencies": {
+    "electron": "^33.2.1"
   }
 }
