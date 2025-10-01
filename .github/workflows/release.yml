@@ -52,10 +52,11 @@ jobs:
       # PyInstaller でバイナリを生成
       - name: Build Python binary with PyInstaller
         run: |
-          cd backend
-          pip install pyinstaller psutil netifaces
-          pyinstaller --onefile --name data_formatter data_formatter.py
+            pip install -r requirements.txt
+            cd backend
+            pyinstaller --onefile --name data_formatter data_formatter.py
         shell: bash
+
 
       # プラットフォーム別にバイナリを配置
       - name: Copy Python binary to Tauri binaries directory
