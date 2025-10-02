@@ -89,7 +89,8 @@ def scan_local_network():
             }
             devices.append(device_info)
     except (PermissionError, Exception) as e:
-        print(f"ARP scan failed: {e}, falling back to ping sweep for gateway", file=sys.stderr)
+        print(
+            f"ARP scan failed: {e}, falling back to ping sweep for gateway", file=sys.stderr)
         # ゲートウェイのIPを取得してping
         try:
             gateway_ip = get_gateway_ip()
@@ -113,7 +114,8 @@ def get_gateway_ip():
                     continue
                 # ゲートウェイIPを取得
                 gateway_hex = fields[2]
-                gateway_ip = '.'.join(str(int(gateway_hex[i:i+2], 16)) for i in range(6, -1, -2))
+                gateway_ip = '.'.join(
+                    str(int(gateway_hex[i:i+2], 16)) for i in range(6, -1, -2))
                 return gateway_ip
     except Exception as e:
         print(f"Failed to get gateway IP: {e}", file=sys.stderr)
