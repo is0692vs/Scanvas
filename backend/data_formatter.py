@@ -147,8 +147,8 @@ if __name__ == "__main__":
         try:
             network_devices = scan_local_network()
         except (PermissionError, Exception):
-            # 権限エラーや実行エラーの場合はモックデータを使用
-            network_devices = MOCK_NETWORK_DEVICES
+            # 権限エラーや実行エラーの場合は空リストを使用
+            network_devices = []
     else:
         network_devices = MOCK_NETWORK_DEVICES
 

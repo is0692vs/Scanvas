@@ -42,7 +42,7 @@ jobs:
         if: matrix.platform == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libusb-1.0-0-dev
 
       - name: Rust cache
         uses: swatinem/rust-cache@v2
@@ -54,7 +54,7 @@ jobs:
         run: |
           pip install -r requirements.txt
           cd backend
-          pyinstaller --onefile --name data_formatter data_formatter.py
+          pyinstaller --onefile --name data_formatter --hidden-import=scapy.all --hidden-import=scapy.layers.l2 --hidden-import=scapy.layers.inet --hidden-import=usb --hidden-import=usb.core --hidden-import=usb.util --hidden-import=psutil data_formatter.py
           ls -la dist/
         shell: bash
 
