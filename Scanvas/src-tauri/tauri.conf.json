@@ -31,6 +31,6 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "resources": ["data_formatter"]
+    "resources": ["data_formatter*"]
   }
 }
