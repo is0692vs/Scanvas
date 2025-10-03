@@ -1,4 +1,7 @@
-import psutil
+try:
+    import psutil
+except Exception:
+    psutil = None
 import platform
 import json
 
@@ -18,27 +21,43 @@ def get_system_info():
             "machine": uname.machine
         }
 
-        # CPU情報
-        cpu_freq_obj = psutil.cpu_freq()  # まず結果を取得
+        # CPU情報 (psutil が利用可能であれば詳細を取得)
+        if psutil:
+            cpu_freq_obj = psutil.cpu_freq()
+            max_frequency = (
+                f"{cpu_freq_obj.max:.2f}MHz"
+                if cpu_freq_obj and cpu_freq_obj.max
+                else "N/A"
+            )
+            cpu_info = {
+                "physical_cores": psutil.cpu_count(logical=False),
+                "total_cores": psutil.cpu_count(logical=True),
+                "max_frequency": max_frequency,
+                "cpu_usage_percent": psutil.cpu_percent(interval=1),
+            }
 
-        # cpu_freq_obj が None でないか確認してからアクセスする
-        max_frequency = f"{cpu_freq_obj.max:.2f}MHz" if cpu_freq_obj and cpu_freq_obj.max else "N/A"
-
-        cpu_info = {
-            "physical_cores": psutil.cpu_count(logical=False),
-            "total_cores": psutil.cpu_count(logical=True),
-            "max_frequency": max_frequency,
-            "cpu_usage_percent": psutil.cpu_percent(interval=1)
-        }
-
-        # メモリ情報
-        svmem = psutil.virtual_memory()
-        memory_info = {
-            "total_gb": round(svmem.total / (1024**3), 2),
-            "available_gb": round(svmem.available / (1024**3), 2),
-            "used_gb": round(svmem.used / (1024**3), 2),
-            "percentage": svmem.percent
-        }
+            # メモリ情報
+            svmem = psutil.virtual_memory()
+            memory_info = {
+                "total_gb": round(svmem.total / (1024**3), 2),
+                "available_gb": round(svmem.available / (1024**3), 2),
+                "used_gb": round(svmem.used / (1024**3), 2),
+                "percentage": svmem.percent,
+            }
+        else:
+            # psutil が無ければ簡易的なデフォルト値を返す
+            cpu_info = {
+                "physical_cores": None,
+                "total_cores": None,
+                "max_frequency": "N/A",
+                "cpu_usage_percent": None,
+            }
+            memory_info = {
+                "total_gb": None,
+                "available_gb": None,
+                "used_gb": None,
+                "percentage": None,
+            }
 
         # 全ての情報を一つの辞書にまとめる
         all_info = {

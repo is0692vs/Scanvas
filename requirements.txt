@@ -4,3 +4,5 @@ pyusb
 scapy
 pytest
 pytest-mock
+pyinstaller
+netifaces

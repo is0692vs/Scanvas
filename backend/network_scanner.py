@@ -1,6 +1,14 @@
 import json
-from scapy.all import srp, Ether, ARP
 import socket
+import sys
+import subprocess
+
+try:
+    import scapy.all as scapy
+    SCAPY_AVAILABLE = True
+except Exception:
+    scapy = None
+    SCAPY_AVAILABLE = False
 
 
 def get_local_network_range():
@@ -27,29 +35,94 @@ def scan_local_network():
     """
     network_range = get_local_network_range()
 
-    # ARPリクエストを作成
-    arp_request = ARP(pdst=network_range)
-    broadcast = Ether(dst="ff:ff:ff:ff:ff:ff")
-    arp_request_broadcast = broadcast / arp_request
-
-    # ARPリクエストを送信し、応答を待つ (timeout=2秒)
-    # answered_listには応答があったデバイスのペアが格納される
-    answered_list = srp(arp_request_broadcast, timeout=2, verbose=False)[0]
-
     devices = []
-    for sent, received in answered_list:
-        device_info = {
-            "node_id": f"net_{received.psrc.replace('.', '_')}",
-            "node_type": "Network Device",
-            "label": received.psrc,  # IPアドレスをラベルに
-            "details": {
-                "ip_address": received.psrc,
-                "mac_address": received.hwsrc
-            }
-        }
-        devices.append(device_info)
 
-    return devices
+    if SCAPY_AVAILABLE:
+        try:
+            # ARPリクエストを作成
+            arp_request = scapy.ARP(pdst=network_range)
+            broadcast = scapy.Ether(dst="ff:ff:ff:ff:ff:ff")
+            arp_request_broadcast = broadcast / arp_request
+
+            # ARPリクエストを送信し、応答を待つ
+            answered_list = scapy.srp(
+                arp_request_broadcast, timeout=2, verbose=False
+            )[0]
+
+            for sent, received in answered_list:
+                device_info = {
+                    "node_id": f"net_{received.psrc.replace('.', '_')}",
+                    "node_type": "Network Device",
+                    "label": received.psrc,
+                    "details": {
+                        "ip_address": received.psrc,
+                        "mac_address": received.hwsrc
+                    }
+                }
+                devices.append(device_info)
+            return devices
+        except PermissionError:
+            # 実行権限がない場合はフォールバックへ
+            print(
+                "[network_scanner] Permission denied for scapy; "
+                "falling back to arp -a",
+                file=sys.stderr,
+            )
+        except Exception as e:
+            print(
+                "[network_scanner] scapy scan failed: %s; "
+                "falling back to arp -a" % (e,),
+                file=sys.stderr,
+            )
+
+    # フォールバック: システムの arp -a コマンドを使って近隣ホストを列挙
+    try:
+        # macOS / Linux 用の `arp -a` 出力をパース
+        arp_cmd = ["arp", "-a"]
+        out = subprocess.check_output(
+            arp_cmd, stderr=subprocess.STDOUT, text=True
+        )
+        for line in out.splitlines():
+            # 例の出力行 (macOS/Linux): IPが括弧、MACは 'at' の直後に出る
+            parts = line.split()
+            if "(" in line and ")" in line:
+                # IPは (x.x.x.x) 形式、MACは 'at' の直後
+                try:
+                    ip = None
+                    mac = None
+                    for i, p in enumerate(parts):
+                        if p.startswith("(") and p.endswith(")"):
+                            ip = p.strip("()")
+                        if p == "at" and i + 1 < len(parts):
+                            mac = parts[i + 1]
+                    if ip:
+                        device_info = {
+                            "node_id": f"net_{ip.replace('.', '_')}",
+                            "node_type": "Network Device",
+                            "label": ip,
+                            "details": {
+                                "ip_address": ip,
+                                "mac_address": mac
+                            }
+                        }
+                        devices.append(device_info)
+                except Exception:
+                    # パースエラーはスキップ
+                    continue
+        return devices
+    except FileNotFoundError:
+        print(
+            "[network_scanner] arp not found; cannot enumerate devices",
+            file=sys.stderr,
+        )
+        return []
+    except subprocess.CalledProcessError as e:
+        print(
+            "[network_scanner] arp command failed:",
+            str(e),
+            file=sys.stderr,
+        )
+        return []
 
 
 # このファイルが直接実行された場合にのみ以下のコードを実行

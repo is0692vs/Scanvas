@@ -1,10 +1,11 @@
 {
-  "$schema": "https://schema.tauri.app/config/2",
+  "$schema": "<https://schema.tauri.app/config/2>",
   "productName": "scanvas",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "identifier": "com.vscode.scanvas",
   "build": {
-    "frontendDist": "../src"
+    "frontendDist": "../src",
+    "beforeBuildCommand": ""
   },
   "app": {
     "withGlobalTauri": true,
@@ -29,6 +30,7 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "resources": ["data_formatter*"]
   }
 }

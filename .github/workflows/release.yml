@@ -1,0 +1,84 @@
+name: 'Release'
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [macos-latest, ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install frontend dependencies
+        run: |
+          cd Scanvas
+          npm install
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install dependencies (ubuntu)
+        if: matrix.platform == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './Scanvas/src-tauri -> target'
+
+      # PyInstaller でバイナリを生成
+      - name: Build Python binary with PyInstaller
+        run: |
+          pip install -r requirements.txt
+          cd backend
+          pyinstaller --onefile --name data_formatter data_formatter.py
+          ls -la dist/
+        shell: bash
+
+      # バイナリを src-tauri にコピー（Tauriがresourcesとして認識）
+      - name: Copy Python binary to Tauri resources
+        run: |
+          if [ "${{ matrix.platform }}" == "windows-latest" ]; then
+            cp backend/dist/data_formatter.exe Scanvas/src-tauri/
+            ls -la Scanvas/src-tauri/data_formatter.exe
+          else
+            cp backend/dist/data_formatter Scanvas/src-tauri/
+            chmod +x Scanvas/src-tauri/data_formatter
+            ls -la Scanvas/src-tauri/data_formatter
+          fi
+        shell: bash
+
+      - name: Build Tauri App
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: 'Scanvas App ${{ github.ref_name }}'
+          releaseBody: 'See the assets to download this version.'
+          releaseDraft: true
+          prerelease: false
+          projectPath: './Scanvas'
