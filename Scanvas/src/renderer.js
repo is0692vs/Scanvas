@@ -91,11 +91,12 @@ window.addEventListener("DOMContentLoaded", () => {
       style: cyStyle,
       layout: {
         name: "cose",
+        idealEdgeLength: 180,
+        nodeRepulsion: 80000,
+        gravity: 25,
+        padding: 50,
         animate: true,
-        padding: 30,
-        nodeRepulsion: 12000,
-        idealEdgeLength: 200,
-        gravity: 0.3,
+        animationDuration: 1000,
       },
     });
     attachEventListeners();
@@ -165,9 +166,13 @@ window.addEventListener("DOMContentLoaded", () => {
       setupCytoscape(graphData.elements);
 
       infoTitle.innerText = "スキャン完了";
+      const nodeList = cy
+        .nodes()
+        .map((node) => node.data("label"))
+        .join("<br>");
       infoContent.innerHTML = `<p>${cy.nodes().length}個のデバイスと${
         cy.edges().length
-      }個の接続が見つかりました。</p>`;
+      }個の接続が見つかりました。</p><p><strong>検出されたデバイス:</strong></p><p>${nodeList}</p>`;
     } catch (error) {
       console.error("[Frontend Error] Scan failed:", error);
       console.error("[Frontend Error] Error type:", typeof error);
