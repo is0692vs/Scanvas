@@ -7,9 +7,11 @@ from system_info import get_system_info
 # Issue #3で作成したUSBスキャナーをインポート
 USB_SCANNER_AVAILABLE = False
 MOCK_USB_TREE = None
+build_device_tree_func = None
 
 try:
     from usb_scanner import build_device_tree
+    build_device_tree_func = build_device_tree
     USB_SCANNER_AVAILABLE = True
 except ImportError:
     # フォールバック用のモックデータ
@@ -35,11 +37,18 @@ except ImportError:
 # Issue #4で作成したネットワークスキャナーをインポート
 NETWORK_SCANNER_AVAILABLE = False
 MOCK_NETWORK_DEVICES = []
+scan_local_network_func = None
 
 try:
     from network_scanner import scan_local_network
+    scan_local_network_func = scan_local_network
     NETWORK_SCANNER_AVAILABLE = True
 except ImportError:
+    print(
+        "[data_formatter] network_scanner not available; "
+        "using mock network list",
+        file=sys.stderr,
+    )
     # フォールバック用のモックデータ
     MOCK_NETWORK_DEVICES = [
         {
@@ -52,6 +61,31 @@ except ImportError:
             }
         }
     ]
+
+
+def get_usb_tree():
+    """Get USB device tree, using actual scanner if available."""
+    if USB_SCANNER_AVAILABLE and build_device_tree_func is not None:
+        return build_device_tree_func()
+    else:
+        return MOCK_USB_TREE
+
+
+def get_network_devices():
+    """Get network devices, using actual scanner if available."""
+    if NETWORK_SCANNER_AVAILABLE and scan_local_network_func is not None:
+        try:
+            return scan_local_network_func()
+        except PermissionError as e:
+            print("[data_formatter] PermissionError from network scanner:",
+                  str(e), file=sys.stderr)
+            return MOCK_NETWORK_DEVICES
+        except Exception as e:
+            print("[data_formatter] network scan failed:",
+                  str(e), file=sys.stderr)
+            return MOCK_NETWORK_DEVICES
+    else:
+        return MOCK_NETWORK_DEVICES
 
 
 def format_for_cytoscape(system_info_json, usb_tree, network_devices=None):
@@ -136,21 +170,11 @@ if __name__ == "__main__":
     actual_system_info_json = get_system_info()
 
     # USB情報を取得（利用可能な場合は実際のスキャン、そうでなければモック）
-    if USB_SCANNER_AVAILABLE:
-        usb_tree = build_device_tree()
-    else:
-        usb_tree = MOCK_USB_TREE
+    usb_tree = get_usb_tree()
 
     # ネットワークデバイス情報を取得
     # （利用可能な場合は実際のスキャン、そうでなければモック）
-    if NETWORK_SCANNER_AVAILABLE:
-        try:
-            network_devices = scan_local_network()
-        except (PermissionError, Exception):
-            # 権限エラーや実行エラーの場合はモックデータを使用
-            network_devices = MOCK_NETWORK_DEVICES
-    else:
-        network_devices = MOCK_NETWORK_DEVICES
+    network_devices = get_network_devices()
 
     # 実際のPC情報、USB情報、ネットワーク情報を統合
     cytoscape_json = format_for_cytoscape(
