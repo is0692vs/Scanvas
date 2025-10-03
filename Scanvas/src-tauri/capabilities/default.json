@@ -6,6 +6,6 @@
   "permissions": [
     "core:default",
     "opener:default",
-    { "identifier": "ipc:allow-run_scan" }
+    { "identifier": "ipc:allow-run-scan" }
   ]
 }
