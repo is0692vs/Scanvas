@@ -89,7 +89,14 @@ window.addEventListener("DOMContentLoaded", () => {
       container: document.getElementById("cy"),
       elements: elements,
       style: cyStyle,
-      layout: { name: "cose", animate: false, padding: 30 },
+      layout: {
+        name: "cose",
+        animate: true,
+        padding: 30,
+        nodeRepulsion: 12000,
+        idealEdgeLength: 200,
+        gravity: 0.3,
+      },
     });
     attachEventListeners();
     cy.resize();
