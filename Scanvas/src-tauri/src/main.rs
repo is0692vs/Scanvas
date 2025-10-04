@@ -114,8 +114,8 @@ fn handle_output(output: std::process::Output) -> Result<String, String> {
         let stdout = String::from_utf8(output.stdout)
             .map_err(|e| format!("Invalid UTF-8 in output: {}", e))?;
         println!("[Rust] Successfully received {} bytes", stdout.len());
-        println!("[Rust] First 200 chars: {}",
-                 if stdout.len() > 200 { &stdout[..200] } else { &stdout });
+        println!("[Rust] First 20000 chars: {}",
+                 if stdout.len() > 20000 { &stdout[..20000] } else { &stdout });
         Ok(stdout)
     } else {
         let stderr = String::from_utf8(output.stderr)

@@ -114,6 +114,9 @@ def format_for_cytoscape(system_info_json, usb_tree, network_devices=None):
     }
     elements.append(pc_node)
 
+    # MACアドレスからUSBノードIDへのマップ
+    mac_to_node_id_map = {}
+
     # 2. USBデバイスをノードとエッジとして追加する再帰関数
     def process_usb_node(usb_node, parent_id):
         """USBノードをCytoscapeの要素に変換し、elementsリストに追加する"""
@@ -133,6 +136,12 @@ def format_for_cytoscape(system_info_json, usb_tree, network_devices=None):
             "group": "edges",
             "data": {"source": parent_id, "target": node_id}
         })
+
+        # MACアドレスがあればマップに記録
+        mac = usb_node.get("details", {}).get("mac_address")
+        if mac:
+            mac_to_node_id_map[mac] = node_id
+
         for child in usb_node["children"]:
             process_usb_node(child, node_id)
 
@@ -152,11 +161,20 @@ def format_for_cytoscape(system_info_json, usb_tree, network_devices=None):
                 "details": network_device.get("details", {})
             }
         })
-        # PC本体との接続エッジを追加
+
+        # MACアドレスを取得
+        mac = network_device.get("details", {}).get("mac_address")
+        if mac and mac in mac_to_node_id_map:
+            # USBデバイスとして既に存在する場合、USBノードからエッジを引く
+            source_id = mac_to_node_id_map[mac]
+        else:
+            # 通常のネットワークデバイスはPC本体からエッジを引く
+            source_id = pc_node["data"]["id"]
+
         elements.append({
             "group": "edges",
             "data": {
-                "source": pc_node["data"]["id"],
+                "source": source_id,
                 "target": network_device["node_id"]
             }
         })
