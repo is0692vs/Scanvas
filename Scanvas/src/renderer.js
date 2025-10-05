@@ -1,7 +1,5 @@
 // scanvas/src/renderer.js
 
-import cola from 'cytoscape-cola';
-
 // DOMの準備が完了してから全ての処理を開始します
 window.addEventListener("DOMContentLoaded", () => {
   console.log("[Frontend] DOMContentLoaded - Initializing Scanvas");
@@ -18,7 +16,6 @@ window.addEventListener("DOMContentLoaded", () => {
   // Tauri v2ではinvokeはcoreモジュール内にある
   const invoke = window.__TAURI__?.core?.invoke || window.__TAURI__?.invoke;
   const cytoscape = window.cytoscape;
-  cytoscape.use(cola);
 
   console.log(
     "[Frontend] Tauri invoke available:",
@@ -39,29 +36,8 @@ window.addEventListener("DOMContentLoaded", () => {
 
   let cy = null;
   const scanButton = document.getElementById("scan-button");
-  const layoutSwitch = document.getElementById("layout-switch");
   const infoTitle = document.getElementById("info-title");
   const infoContent = document.getElementById("info-content");
-
-  // レイアウト設定
-  const staticLayout = {
-    name: 'cose',
-    animate: true,
-    nodeRepulsion: 80000,
-    idealEdgeLength: 180,
-    padding: 50
-  };
-
-  const dynamicLayout = {
-    name: 'cola',
-    animate: true,
-    maxSimulationTime: 3000, // 計算時間
-    fit: true,
-    padding: 50,
-    nodeSpacing: 10,
-    edgeLength: 180,
-    infinite: true // ライブアップデートを有効化
-  };
 
   // スタイルの定義
   const cyStyle = [
@@ -113,20 +89,20 @@ window.addEventListener("DOMContentLoaded", () => {
       container: document.getElementById("cy"),
       elements: elements,
       style: cyStyle,
-      layout: staticLayout,
+      layout: {
+        name: "cose",
+        idealEdgeLength: 200, // 少し伸ばす
+        nodeRepulsion: 100000, // さらに強くする
+        gravity: 30,
+        padding: 50,
+        animate: true,
+        animationDuration: 1000,
+      },
     });
     attachEventListeners();
     cy.resize();
     cy.fit();
   }
-
-  // レイアウトスイッチのイベントリスナー
-  layoutSwitch.addEventListener("change", () => {
-    if (cy) {
-      const layout = layoutSwitch.checked ? dynamicLayout : staticLayout;
-      cy.layout(layout).run();
-    }
-  });
 
   // イベントハンドラを登録する関数
   function attachEventListeners() {
@@ -163,13 +139,6 @@ window.addEventListener("DOMContentLoaded", () => {
       if (evt.target === cy) {
         infoTitle.innerText = "操作方法";
         infoContent.innerHTML = `<p>🖱️ ドラッグ: グラフを移動</p><p>🔍 スクロール: ズーム</p><p>👆 クリック: ノード情報を表示</p>`;
-      }
-    });
-
-    // ノードドラッグ終了時の処理（動的レイアウトの場合）
-    cy.on("dragfree", "node", (evt) => {
-      if (layoutSwitch.checked) {
-        cy.layout(dynamicLayout).run();
       }
     });
   }
