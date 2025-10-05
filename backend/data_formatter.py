@@ -101,6 +101,9 @@ def format_for_cytoscape(system_info_json, usb_tree, network_devices=None):
     if network_devices is None:
         network_devices = []
 
+    # --- ↓ この行を追加 ---
+    added_node_ids = set()  # 追加済みのノードIDを記録するセット
+
     # 1. PC本体の情報をJSONから読み込み、中央のノードとして追加
     system_info = json.loads(system_info_json)
     pc_node = {
@@ -113,6 +116,7 @@ def format_for_cytoscape(system_info_json, usb_tree, network_devices=None):
         }
     }
     elements.append(pc_node)
+    added_node_ids.add(pc_node["data"]["id"])  # PCノードIDを追加
 
     # MACアドレスからUSBノードIDへのマップ
     mac_to_node_id_map = {}
@@ -123,15 +127,18 @@ def format_for_cytoscape(system_info_json, usb_tree, network_devices=None):
         # usb_nodeに含まれるユニークなIDをそのまま使う
         node_id = usb_node["node_id"]
 
-        elements.append({
-            "group": "nodes",
-            "data": {
-                "id": node_id,
-                "label": usb_node["label"],
-                "type": usb_node["node_type"],
-                "details": usb_node.get("details", {})
-            }
-        })
+        if node_id not in added_node_ids:  # 重複チェック
+            elements.append({
+                "group": "nodes",
+                "data": {
+                    "id": node_id,
+                    "label": usb_node["label"],
+                    "type": usb_node["node_type"],
+                    "details": usb_node.get("details", {})
+                }
+            })
+            added_node_ids.add(node_id)  # 追加済みに記録
+
         elements.append({
             "group": "edges",
             "data": {"source": parent_id, "target": node_id}
@@ -151,33 +158,37 @@ def format_for_cytoscape(system_info_json, usb_tree, network_devices=None):
 
     # 4. ネットワークデバイスをノードとエッジとして追加
     for network_device in network_devices:
-        # ネットワークデバイスのノードを追加
-        elements.append({
-            "group": "nodes",
-            "data": {
-                "id": network_device["node_id"],
-                "label": network_device["label"],
-                "type": network_device["node_type"],
-                "details": network_device.get("details", {})
-            }
-        })
+        node_id = network_device["node_id"]
+        # ★★★ もし、このノードがまだ追加されていなければ、追加する ★★★
+        if node_id not in added_node_ids:
+            # ネットワークデバイスのノードを追加
+            elements.append({
+                "group": "nodes",
+                "data": {
+                    "id": node_id,
+                    "label": network_device["label"],
+                    "type": network_device["node_type"],
+                    "details": network_device.get("details", {})
+                }
+            })
+            added_node_ids.add(node_id)  # 追加済みに記録
 
-        # MACアドレスを取得
-        mac = network_device.get("details", {}).get("mac_address")
-        if mac and mac in mac_to_node_id_map:
-            # USBデバイスとして既に存在する場合、USBノードからエッジを引く
-            source_id = mac_to_node_id_map[mac]
-        else:
-            # 通常のネットワークデバイスはPC本体からエッジを引く
-            source_id = pc_node["data"]["id"]
+            # MACアドレスを取得
+            mac = network_device.get("details", {}).get("mac_address")
+            if mac and mac in mac_to_node_id_map:
+                # USBデバイスとして既に存在する場合、USBノードからエッジを引く
+                source_id = mac_to_node_id_map[mac]
+            else:
+                # 通常のネットワークデバイスはPC本体からエッジを引く
+                source_id = pc_node["data"]["id"]
 
-        elements.append({
-            "group": "edges",
-            "data": {
-                "source": source_id,
-                "target": network_device["node_id"]
-            }
-        })
+            elements.append({
+                "group": "edges",
+                "data": {
+                    "source": source_id,
+                    "target": network_device["node_id"]
+                }
+            })
 
     return {"elements": elements}
 
