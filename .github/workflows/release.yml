@@ -44,6 +44,17 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
+      - name: Install dependencies (macos)
+        if: matrix.platform == 'macos-latest'
+        run: |
+          brew update
+          brew install libusb libpcap
+
+      - name: Install dependencies (windows)
+        if: matrix.platform == 'windows-latest'
+        run: |
+          # Windows dependencies if needed
+
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
@@ -54,7 +65,7 @@ jobs:
         run: |
           pip install -r requirements.txt
           cd backend
-          pyinstaller --onefile --name data_formatter data_formatter.py
+          pyinstaller --onefile --hidden-import=usb_scanner --hidden-import=network_scanner --name data_formatter data_formatter.py
           ls -la dist/
         shell: bash
 
