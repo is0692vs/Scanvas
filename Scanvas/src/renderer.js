@@ -91,9 +91,9 @@ window.addEventListener("DOMContentLoaded", () => {
       style: cyStyle,
       layout: {
         name: "cose",
-        idealEdgeLength: 180,
-        nodeRepulsion: 80000,
-        gravity: 25,
+        idealEdgeLength: 200, // 少し伸ばす
+        nodeRepulsion: 100000, // さらに強くする
+        gravity: 30,
         padding: 50,
         animate: true,
         animationDuration: 1000,
