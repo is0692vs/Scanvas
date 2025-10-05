@@ -18,7 +18,8 @@ async fn run_scan(app: tauri::AppHandle) -> Result<String, String> {
         if local_backend.exists() {
             println!("[Rust] Using local backend: {:?}", local_backend);
 
-            let output = Command::new("python3")
+            let output = Command::new("sudo")
+                .arg("python3")
                 .arg(&local_backend)
                 .output()
                 .map_err(|e| format!("Failed to execute Python: {}", e))?;
@@ -38,7 +39,8 @@ async fn run_scan(app: tauri::AppHandle) -> Result<String, String> {
 
             println!("[Rust] Using workspace backend: {:?}", backend_path);
 
-            let output = Command::new("python3")
+            let output = Command::new("sudo")
+                .arg("python3")
                 .arg(&backend_path)
                 .output()
                 .map_err(|e| format!("Failed to execute Python: {}", e))?;
