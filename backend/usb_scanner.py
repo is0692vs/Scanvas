@@ -1,6 +1,7 @@
 import usb.core
 import usb.util
 import json
+import subprocess
 
 
 def get_device_details(dev):
@@ -20,7 +21,15 @@ def get_device_details(dev):
         details["product"] = usb.util.get_string(dev, dev.iProduct)
     except usb.core.USBError:
         details["product"] = "N/A"
-        details["product"] = "N/A"
+
+    # USBデバイスがネットワークインターフェースを持つ場合、MACアドレスを取得
+    try:
+        cmd = f"ip link show | grep -A1 'usb{dev.bus}.{dev.address}' | grep link/ether | awk '{{print $2}}'"
+        mac = subprocess.check_output(cmd, shell=True, text=True).strip()
+        if mac:
+            details["mac_address"] = mac
+    except subprocess.CalledProcessError:
+        pass  # MACが見つからない場合は無視
 
     return details
 
